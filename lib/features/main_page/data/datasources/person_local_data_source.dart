@@ -11,10 +11,10 @@ abstract class PersonLocalDataSource {
 
 const CACHED_PERSONS_LIST = "CACHED_PERSONS_LIST";
 
-class _PersonLocalDataSource implements PersonLocalDataSource {
+class PersonLocalDataSourceImpl implements PersonLocalDataSource {
   final SharedPreferences sharedPreferences;
 
-  _PersonLocalDataSource({required this.sharedPreferences});
+  PersonLocalDataSourceImpl({required this.sharedPreferences});
 
   @override
   Future<List<PersonModel>> getAllPersonsFromCache() {

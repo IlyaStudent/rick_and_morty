@@ -4,10 +4,10 @@ abstract class NetworkInfo {
   Future<bool> get isConnected;
 }
 
-class _NetworkInfo implements NetworkInfo {
-  late final InternetConnectionChecker connectionChecker;
+class NetworkInfoImpl implements NetworkInfo {
+  final InternetConnectionChecker connectionChecker;
 
-  _NetworkInfo(this.connectionChecker);
+  NetworkInfoImpl(this.connectionChecker);
 
   @override
   Future<bool> get isConnected => connectionChecker.hasConnection;

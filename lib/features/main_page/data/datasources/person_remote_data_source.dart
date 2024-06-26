@@ -1,24 +1,38 @@
-import 'package:dio/dio.dart' hide Headers;
-import 'package:retrofit/http.dart';
+import 'dart:convert';
 import 'package:rick_and_morty/core/error/exception.dart';
+import 'package:http/http.dart' as http;
 import 'package:rick_and_morty/features/main_page/data/models/person_model.dart';
-import 'package:retrofit/retrofit.dart';
 
-part 'person_remote_data_source.g.dart';
-
-@RestApi(baseUrl: '')
 abstract class PersonRemoteDataSource {
-  factory PersonRemoteDataSource(Dio dio, {String baseUrl}) =
-      _PersonRemoteDataSource;
+  Future<List<PersonModel>> getAllPersons(int page);
 
-  // https://rickandmortyapi.com/api/character/?page=19
-  @GET("/character/?page={page}")
-  @Headers(<String, dynamic>{
-    'Content-Type': 'application/json',
-  })
-  Future<List<PersonModel>> getAllPersons(@Path("page") int page);
+  Future<List<PersonModel>> searchPerson(String query);
+}
 
-  // https://rickandmortyapi.com/api/character/?name=rick&status=alive
-  @GET("/character/?name={query}")
-  Future<List<PersonModel>> searchPerson(@Path("query") String query);
+class PersonRemoteDataSourceImpl implements PersonRemoteDataSource {
+  final http.Client client;
+
+  PersonRemoteDataSourceImpl({required this.client});
+
+  @override
+  Future<List<PersonModel>> getAllPersons(int page) => _getPersonFromUrl(
+      'https://rickandmortyapi.com/api/character/?page=$page');
+
+  @override
+  Future<List<PersonModel>> searchPerson(String query) => _getPersonFromUrl(
+      'https://rickandmortyapi.com/api/character/?name=$query');
+
+  Future<List<PersonModel>> _getPersonFromUrl(String url) async {
+    print(url);
+    final response = await client
+        .get(Uri.parse(url), headers: {'Content-Type': 'application/json'});
+    if (response.statusCode == 200) {
+      final persons = json.decode(response.body);
+      return (persons['results'] as List)
+          .map((person) => PersonModel.fromJson(person))
+          .toList();
+    } else {
+      throw ServerException();
+    }
+  }
 }
